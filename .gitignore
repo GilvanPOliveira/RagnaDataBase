@@ -1,0 +1,32 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Ambiente virtual
+venv/
+env/
+.virtualenv/
+
+# Logs e arquivos locais
+*.log
+*.sqlite3
+*.db
+
+# Dados sensíveis e variáveis de ambiente
+.env
+.env.*
+
+# Pasta de testes temporários
+temp/
+tmp/
+
+# Arquivos de IDEs e editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Arquivos de build Python
+build/
+dist/
+*.egg-info/
