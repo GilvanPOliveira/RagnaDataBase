@@ -1,6 +1,9 @@
 import httpx
 import re
-from models.item_model import ItemModel, ItemSet, ItemSetEntry, SoldByEntry, ItemSummonInfo, ContainedInEntry
+from models.item_model import (
+    ItemModel, ItemSet, ItemSetEntry, SoldByEntry,
+    ItemSummonInfo, ContainedInEntry
+)
 from utils.env_loader import get_env_var
 
 API_KEY = get_env_var("DIVINE_PRIDE_API_KEY")
@@ -25,9 +28,8 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
             resName=data.get("resName"),
             unidName=data.get("unidName"),
             unidResName=data.get("unidResName"),
-            description=data.get("description"),
+            description=strip_colors(data.get("description")),
             unidDescription=strip_colors(data.get("unidDescription")),
-            description_text=strip_colors(data.get("description")),
             image_icon=f"https://static.divine-pride.net/images/items/item/{item_id}.png",
             image_collection=f"https://static.divine-pride.net/images/items/collection/{item_id}.png",
             slots=data.get("slots"),
@@ -93,6 +95,7 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
                 f"http://db.irowiki.org/db/item-info/{item_id}/",
                 f"https://kafra.kr/#!/en/KRO/itemdetail/{item_id}"
             ],
-            usable_by=strip_colors(data.get("description")).split("Usable By:")[-1].strip() if "Usable By:" in data.get("description", "") else None,
-            weapon_level=int(re.search(r"Weapon Level: \^808080(\d+)", data.get("description", "")).group(1)) if "Weapon Level:" in data.get("description", "") else None
+            usable_by=strip_colors(data.get("description")).split(
+                "Usable By:")[-1].strip() if "Usable By:" in data.get("description", "") else None,
+            weapon_level=data.get("weaponLevel")
         )

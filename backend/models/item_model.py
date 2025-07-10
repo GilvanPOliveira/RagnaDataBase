@@ -1,16 +1,13 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-
 class ItemSetEntry(BaseModel):
     itemId: int
     name: str
 
-
 class ItemSet(BaseModel):
     name: str
     items: List[ItemSetEntry]
-
 
 class ItemSummonInfo(BaseModel):
     sourceId: int
@@ -19,7 +16,6 @@ class ItemSummonInfo(BaseModel):
     targetName: str
     chance: Optional[float] = Field(default=None)
 
-
 class SoldByEntry(BaseModel):
     npc_name: str
     map: Optional[str] = None
@@ -27,11 +23,9 @@ class SoldByEntry(BaseModel):
     y: int
     price: int
 
-
 class ContainedInEntry(BaseModel):
     source_name: str
     chance: Optional[float] = Field(default=None)
-
 
 class ItemModel(BaseModel):
     # Identificadores e nomes
