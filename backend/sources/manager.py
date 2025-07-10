@@ -14,6 +14,7 @@ async def get_item_from_sources(item_id: int) -> ItemModel:
         base = None
 
     if base:
+        # Tentativa de completar com dados ausentes
         for fallback in [fetch_dp_html, fetch_iro_wiki, fetch_ragna_api]:
             try:
                 extra = await fallback(item_id)
@@ -27,6 +28,7 @@ async def get_item_from_sources(item_id: int) -> ItemModel:
                 errors.append(f"{fallback.__name__} failed: {str(e)}")
         return base
 
+    # Se nem o JSON funcionou, tenta os outros diretamente
     for fallback in [fetch_dp_html, fetch_iro_wiki, fetch_ragna_api]:
         try:
             return await fallback(item_id)
@@ -34,4 +36,3 @@ async def get_item_from_sources(item_id: int) -> ItemModel:
             errors.append(f"{fallback.__name__} failed: {str(e)}")
 
     raise Exception("Todas as fontes falharam:\n" + "\n".join(errors))
- 

@@ -16,4 +16,3 @@ async def fetch_ragna_api(item_id: int) -> ItemModel:
         image_icon=data.get("icon"),
         external_links=[url]
     )
- 

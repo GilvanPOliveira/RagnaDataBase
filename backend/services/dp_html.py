@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 from models.item_model import ItemModel, SoldByEntry
 import re
- 
+
 async def fetch_dp_html(item_id: int) -> ItemModel:
     url = f"https://www.divine-pride.net/database/item/{item_id}"
     async with httpx.AsyncClient() as client:
@@ -13,6 +13,7 @@ async def fetch_dp_html(item_id: int) -> ItemModel:
     title = soup.select_one("h2").text.strip() if soup.select_one("h2") else "Unknown"
     description = soup.select_one(".dp-content").text.strip() if soup.select_one(".dp-content") else ""
 
+    # Sold by table (if exists)
     sold_by = []
     sold_table = soup.find("table", {"id": "table-npc-buy"})
     if sold_table:

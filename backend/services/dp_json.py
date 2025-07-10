@@ -5,14 +5,10 @@ from utils.env_loader import get_env_var
 
 API_KEY = get_env_var("DIVINE_PRIDE_API_KEY")
 
-# Função otimizada para limpar códigos de cores e quebras de linha
 def strip_colors(text: str) -> str:
     if not text:
-        return ""
-    text = re.sub(r"\^(?:[0-9a-fA-F]{6})", "", text)  # remove códigos de cores
-    text = re.sub(r"\n+", " ", text)                  # substitui quebras de linha por espaço
-    text = re.sub(r"\s{2,}", " ", text).strip()       # remove múltiplos espaços
-    return text
+        return None
+    return re.sub(r"\^(?:[0-9a-fA-F]{6})", "", text).replace("\n", " ").strip()
 
 async def fetch_dp_json(item_id: int) -> ItemModel:
     url = f"https://www.divine-pride.net/api/database/Item/{item_id}?apiKey={API_KEY}"
@@ -22,18 +18,16 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
         r.raise_for_status()
         data = r.json()
 
-        description_clean = strip_colors(data.get("description"))
-
         return ItemModel(
             id=data["id"],
-            aegisName=data.get("aegisName"),
+            aegisName=data["aegisName"],
             name=data["name"],
             resName=data.get("resName"),
             unidName=data.get("unidName"),
             unidResName=data.get("unidResName"),
-            description=description_clean,
+            description=data.get("description"),
             unidDescription=strip_colors(data.get("unidDescription")),
-            description_text=description_clean,
+            description_text=strip_colors(data.get("description")),
             image_icon=f"https://static.divine-pride.net/images/items/item/{item_id}.png",
             image_collection=f"https://static.divine-pride.net/images/items/collection/{item_id}.png",
             slots=data.get("slots"),
@@ -56,9 +50,9 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
             EQUIP=data.get("EQUIP"),
             LOCA=data.get("LOCA"),
             hasScript=data.get("hasScript"),
-            pets=data.get("pets") or None,
+            pets=data.get("pets", []),
             cardPrefix=data.get("cardPrefix"),
-            rewardForAchievement=data.get("rewardForAchievement") or None,
+            rewardForAchievement=data.get("rewardForAchievement", []),
             itemSummonInfoContainedIn=[
                 ItemSummonInfo(
                     sourceId=e["sourceId"],
@@ -88,7 +82,7 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
             sold_by=[
                 SoldByEntry(
                     npc_name=e["npc"]["name"],
-                    map=e["npc"].get("map", "Unknown"),
+                    map=e["npc"].get("map") or "Unknown",
                     x=e["npc"].get("x", 0),
                     y=e["npc"].get("y", 0),
                     price=e["price"]
@@ -99,6 +93,6 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
                 f"http://db.irowiki.org/db/item-info/{item_id}/",
                 f"https://kafra.kr/#!/en/KRO/itemdetail/{item_id}"
             ],
-            usable_by=description_clean.split("Usable By:")[-1].strip() if "Usable By:" in description_clean else None,
-            weapon_level=data.get("weaponLevel")
+            usable_by=strip_colors(data.get("description")).split("Usable By:")[-1].strip() if "Usable By:" in data.get("description", "") else None,
+            weapon_level=int(re.search(r"Weapon Level: \^808080(\d+)", data.get("description", "")).group(1)) if "Weapon Level:" in data.get("description", "") else None
         )

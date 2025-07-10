@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from services.source_manager import get_item_from_sources
+from sources.manager import get_item_from_sources
 from models.item_model import ItemModel
 
 router = APIRouter()

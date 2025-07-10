@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 from models.item_model import ItemModel
 import re
- 
+
 async def fetch_iro_wiki(item_id: int) -> ItemModel:
     url = f"https://db.irowiki.org/db/item-info/{item_id}/"
     async with httpx.AsyncClient() as client:
