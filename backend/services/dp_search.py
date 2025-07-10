@@ -1,15 +1,18 @@
 import httpx
 from bs4 import BeautifulSoup
+from utils.simple_cache import cache
 
 async def search_items_by_name(name: str) -> list:
-    url = f"https://www.divine-pride.net/database/search?q={name}"
+    cached = cache.get(name.lower())
+    if cached is not None:
+        return cached
 
+    url = f"https://www.divine-pride.net/database/search?q={name}"
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Busca pela tabela de resultados da seção "Itens"
         item_rows = soup.select("table.table tbody tr")
         results = []
 
@@ -31,4 +34,5 @@ async def search_items_by_name(name: str) -> list:
             if name.lower() in item_name.lower():
                 results.append({"id": item_id, "name": item_name})
 
+        cache.set(name.lower(), results)
         return results
