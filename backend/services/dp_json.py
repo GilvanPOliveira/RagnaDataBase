@@ -11,7 +11,7 @@ def strip_colors(text: str) -> str:
     return re.sub(r"\^(?:[0-9a-fA-F]{6})", "", text).replace("\n", " ").strip()
 
 async def fetch_dp_json(item_id: int) -> ItemModel:
-    url = f"https://www.divine-pride.net/api/database/Item/{item_id}?apiKey={API_KEY}"
+    url = f"https://www.divine-pride.net/api/database/Item/{item_id}?apiKey={API_KEY}&server=bRO"
 
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
