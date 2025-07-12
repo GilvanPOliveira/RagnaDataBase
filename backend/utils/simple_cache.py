@@ -19,5 +19,4 @@ class SimpleCache:
         expires_at = time.time() + self.ttl
         self.store[key] = (value, expires_at)
 
-# Instância global do cache para ser usada em qualquer lugar
 cache = SimpleCache(ttl_seconds=300)  # 5 minutos

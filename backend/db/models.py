@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from db.session import Base
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
+from db.session import Base
 from datetime import datetime
 
 class User(Base):
@@ -10,7 +10,13 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
     name = Column(String, nullable=True)
-
+    is_admin = Column(Boolean, default=False)
+    is_superadmin = Column(Boolean, default=False)
+    inventories = relationship(
+        "Inventory",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 class Inventory(Base):
     __tablename__ = "inventories"
 
@@ -26,3 +32,5 @@ class Inventory(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", backref="inventories")
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user = relationship("User", back_populates="inventories")

@@ -15,3 +15,12 @@ class InventoryPublic(BaseModel):
     quantity: int
     price: int
     user: dict 
+
+class InventoryUpdate(BaseModel):
+    price: Optional[float]
+    quantity: Optional[int]
+
+class InventoryBatchUpdate(BaseModel):
+    item_id: int
+    quantity: Optional[int] = None
+    price: Optional[int] = None

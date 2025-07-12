@@ -11,10 +11,11 @@ import asyncio
 
 async def reset_database():
     async with engine.begin() as conn:
-        # Apagar a tabela de controle do Alembic (resolve o erro!)
+        
+        # Apagar a tabela de controle do Alembic
         await conn.execute(text("DROP TABLE IF EXISTS alembic_version CASCADE"))
 
-        # Apagar todas as tabelas do banco (CASCADE)
+        # Apagar todas as tabelas do banco
         for table in reversed(Base.metadata.sorted_tables):
             await conn.execute(text(f'DROP TABLE IF EXISTS {table.name} CASCADE'))
 

@@ -20,10 +20,8 @@ async def search_items(
     per_page: int = Query(10, ge=1, le=100)
 ):
     try:
-        # Busca todos os resultados da Divine-Pride
         all_results = await search_items_by_name(name)
 
-        # Aplica a paginação
         start = (page - 1) * per_page
         end = start + per_page
         paginated = all_results[start:end]
