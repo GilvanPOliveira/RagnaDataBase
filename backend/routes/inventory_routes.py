@@ -207,7 +207,7 @@ async def update_inventory_item(
     if not item:
         raise HTTPException(status_code=404, detail="Item não encontrado no inventário.")
 
-    update_data = item_update.dict(exclude_unset=True)
+    update_data = item_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(item, key, value)
 

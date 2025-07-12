@@ -34,7 +34,7 @@ async def update_me(
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
-    update_data = user_update.dict(exclude_unset=True)
+    update_data = user_update.model_dump(exclude_unset=True)
     if "password" in update_data:
         update_data["password"] = bcrypt.hash(update_data["password"])
     if "email" in update_data:
