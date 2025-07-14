@@ -4,7 +4,7 @@ from utils.env_loader import get_env_var
 
 SECRET_KEY = get_env_var("SECRET_KEY", "secret-fallback")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 dias
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 
 
 def create_access_token(data: dict, expires_delta: int = None) -> str:
     to_encode = data.copy()

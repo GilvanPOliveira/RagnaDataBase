@@ -82,10 +82,8 @@ async def get_list_items(
 
     responses: List[ListItemResponse] = []
     for li in items:
-        # 1. Buscar dados do item
         item = await get_item_from_sources(li.item_id)
 
-        # 2. Mapear sold_by (se existir)
         sold_by = []
         if getattr(item, "soldBy", None):
             for e in item.soldBy:
@@ -96,7 +94,6 @@ async def get_list_items(
                     price=e.price
                 ))
 
-        # 3. Mapear drop_monsters (se existir)
         drop_monsters = []
         if getattr(item, "itemSummonInfoContainedIn", None):
             for e in item.itemSummonInfoContainedIn:
@@ -107,7 +104,6 @@ async def get_list_items(
                     qtd_mob=0
                 ))
 
-        # 4. Encontrar menor oferta de usuário
         row = (await db.execute(
             select(OfferDB, UserDB)
             .join(UserDB)
@@ -125,7 +121,6 @@ async def get_list_items(
                 user_email=user.email
             )
 
-        # 5. Montar resposta
         responses.append(ListItemResponse(
             item_id=li.item_id,
             name=item.name,

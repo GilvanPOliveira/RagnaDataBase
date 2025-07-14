@@ -2,12 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import List
-
 from db.models import List as ListModel, ListItem as ListItemModel
 from db.session import get_session
 from models.list_model import (
     ListCreate, ListRead,
-    BulkListItemCreate, UpdateListItem,
+    BulkListItemCreate,
     ListItemResponse, SoldBy, LowestUserOffer, DropMonster
 )
 from auth.auth_dependencies import get_current_user
@@ -21,7 +20,6 @@ async def create_list(
     db: AsyncSession = Depends(get_session),
     current_user=Depends(get_current_user),
 ):
-    # Gera local_id incremental POR USUÁRIO
     max_local = await db.scalar(
         select(func.max(ListModel.local_id)).where(ListModel.user_id == current_user.id)
     )
@@ -32,7 +30,6 @@ async def create_list(
     await db.commit()
     await db.refresh(nova)
 
-    # Retorne o modelo Pydantic preenchido manualmente
     return ListRead(
         id=nova.id,
         local_id=nova.local_id,
@@ -54,7 +51,6 @@ async def get_lists(
     output: List[ListRead] = []
 
     for lst in listas:
-        # Busca itens brutos
         q2 = await db.execute(
             select(ListItemModel).where(ListItemModel.list_id == lst.id)
         )
@@ -82,7 +78,6 @@ async def get_lists(
                 )
                 for e in getattr(info, "itemSummonInfoContainedIn", []) or []
             ]
-            # menor oferta de usuário
             row = (await db.execute(
                 select(db.models.Offer, db.models.User)
                 .join(db.models.User)
@@ -190,7 +185,6 @@ async def update_items_bulk(
     db: AsyncSession = Depends(get_session),
     current_user=Depends(get_current_user),
 ):
-    # valida lista pertence ao usuário
     q = await db.execute(
         select(ListModel)
         .where(ListModel.id == list_id, ListModel.user_id == current_user.id)
@@ -199,7 +193,6 @@ async def update_items_bulk(
         raise HTTPException(status_code=404, detail="Lista não encontrada")
 
     updated_objs: List[ListItemModel] = []
-    # atualiza cada item enviado
     for itm in payload.items:
         li = (await db.execute(
             select(ListItemModel)
@@ -218,7 +211,6 @@ async def update_items_bulk(
 
     await db.commit()
 
-    # monta a resposta enriquecida
     enriched: List[ListItemResponse] = []
     for li in updated_objs:
         info = await get_item_from_sources(li.item_id)
@@ -290,7 +282,6 @@ async def get_list_items(
     db: AsyncSession = Depends(get_session),
     current_user=Depends(get_current_user),
 ):
-    # Verifica se a lista existe e pertence ao usuário
     q = await db.execute(
         select(ListModel)
         .where(ListModel.id == list_id, ListModel.user_id == current_user.id)
@@ -299,7 +290,6 @@ async def get_list_items(
     if not lst:
         raise HTTPException(404, "Lista não encontrada")
 
-    # Busca os itens da lista
     q2 = await db.execute(
         select(ListItemModel).where(ListItemModel.list_id == list_id)
     )

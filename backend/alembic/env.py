@@ -8,7 +8,6 @@ from alembic import context
 import os
 import sys
 
-# Permite importar do backend/
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from db.models import Base

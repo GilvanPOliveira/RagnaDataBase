@@ -2,7 +2,6 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_me_update_delete(async_client):
-    # Recria usuário para garantir que existe
     await async_client.post("/auth/register", json={
         "email": "user@test.com",
         "password": "test123",

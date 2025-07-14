@@ -34,4 +34,4 @@ async def test_inventory_flow(async_client):
 
     res = await async_client.delete("/inventory/remove/1219", headers=headers)
     assert res.status_code == 200
-    assert "removido" in res.json()["message"].lower()  # ✔ Corrigido aqui
+    assert "removido" in res.json()["message"].lower()  

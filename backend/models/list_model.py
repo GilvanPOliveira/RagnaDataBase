@@ -41,7 +41,6 @@ class ListItemResponse(BaseModel):
     lowest_user_offer: Optional[LowestUserOffer]
     drop_monsters: List[DropMonster]
 
-    # Pydantic v2: Configuração de atributos diretamente na classe
     model_config = ConfigDict(from_attributes=True)
 
 class ListRead(BaseModel):
@@ -52,5 +51,4 @@ class ListRead(BaseModel):
     updated_at: datetime
     items: List[ListItemResponse] = []
 
-    # Pydantic v2: Configuração de atributos diretamente na classe
     model_config = ConfigDict(from_attributes=True)
