@@ -1,3 +1,4 @@
+// src/routes/AdminRoute.jsx
 import React, { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import AuthContext from '../context/AuthContextStore';
@@ -8,8 +9,8 @@ export default function AdminRoute() {
   if (loadingAuth) return <p>Carregando…</p>;
   if (!user) return <Navigate to="/login" replace />;
 
-  // Mesma lógica do Navbar
-  if (user.email !== 'admin@admin.com') {
+  // Permite admin OU superadmin (id 1)
+  if (!user.is_admin && user.id !== 1) {
     return <Navigate to="/" replace />;
   }
 

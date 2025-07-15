@@ -73,3 +73,36 @@
     }
   }
 }
+
+/* AdminUsers.scss */
+.badge-admin {
+  background-color: #4caf50;
+  color: white;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.badge-user {
+  background-color: #ccc;
+  color: #333;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.btn-promote {
+  margin-left: 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.btn-remove-admin {
+  margin-left: 8px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 2px 6px;
+  cursor: pointer;
+}

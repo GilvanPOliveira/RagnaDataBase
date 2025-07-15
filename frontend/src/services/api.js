@@ -60,28 +60,28 @@ export async function deleteAccount(password) {
 
 // Lista todos os usuários (admin)
 export async function getAllUsers() {
+  // GET /users → [{ id, email, name, is_admin? }, …]
   const res = await api.get('/users');
-  return res.data; // espera { users: [...] } ou diretamente [...]
+  return res.data;
 }
 
 // Atualiza dados de um usuário pelo ID
 export async function updateUserById(id, data) {
-  // data: { name?, email?, is_admin? }
+  // PATCH /users/{id}
   const res = await api.patch(`/users/${id}`, data);
   return res.data;
 }
 
 // Remove um usuário pelo ID
 export async function deleteUserById(id) {
+  // DELETE /users/{id}
   const res = await api.delete(`/users/${id}`);
   return res.data;
 }
 
 // Promove usuário a admin
-export async function promoteUser(userId) {
-  // usa o endpoint POST /users/{userId}/promote
-  // passa um body vazio para evitar 400 Bad Request
-  const res = await api.post(`/users/${userId}/promote`, {});
+export async function setUserAdminStatus(userId, isAdmin) {
+  const res = await api.patch(`/users/${userId}/admin`, { is_admin: isAdmin });
   return res.data;
 }
 

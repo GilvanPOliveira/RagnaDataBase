@@ -1,10 +1,12 @@
 // src/pages/AdminUsers.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   getAllUsers,
   updateUserById,
-  deleteUserById
+  deleteUserById,
+  setUserAdminStatus
 } from '../services/api';
+import AuthContext from '../context/AuthContextStore';
 import '../styles/AdminUsers.scss';
 
 export default function AdminUsers() {
@@ -14,19 +16,19 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Carrega e normaliza lista de usuários, garantindo que is_admin exista
+  const { user: currentUser } = useContext(AuthContext);
+
   const loadUsers = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getAllUsers();
-      const raw = Array.isArray(data) ? data : data.users || [];
-      // Se o backend usar outro campo, adicione aqui: u.isAdmin ?? u.admin
-      const list = raw.map(u => ({
-        ...u,
-        is_admin: Boolean(u.is_admin),
-      }));
-      setUsers(list);
+      const raw = await getAllUsers();
+      setUsers(raw.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        is_admin: Boolean(u.is_admin)
+      })));
     } catch (e) {
       console.error('loadUsers error', e);
       setError('Falha ao carregar usuários.');
@@ -39,19 +41,16 @@ export default function AdminUsers() {
     loadUsers();
   }, []);
 
-  // Inicia edição inline de nome e e‑mail
   const startEdit = u => {
     setEditingId(u.id);
     setForm({ name: u.name, email: u.email });
   };
 
-  // Cancela edição
   const cancelEdit = () => {
     setEditingId(null);
     setForm({ name: '', email: '' });
   };
 
-  // Salva alterações de nome e e‑mail
   const saveEdit = async id => {
     try {
       await updateUserById(id, form);
@@ -63,19 +62,17 @@ export default function AdminUsers() {
     }
   };
 
-  // Alterna permissão de admin via PATCH /users/{id}
   const toggleAdmin = async u => {
-    if (u.id === 1) return; // super‑admin imune
+    if (u.id === 1) return; // Superadmin é intocável
     try {
-      await updateUserById(u.id, { is_admin: !u.is_admin });
+      await setUserAdminStatus(u.id, !u.is_admin);
       await loadUsers();
     } catch (e) {
       console.error('toggleAdmin error', e);
-      setError('Erro ao alterar permissão de admin.');
+      setError('Erro ao alterar privilégio de admin.');
     }
   };
 
-  // Exclui usuário (exceto super‑admin)
   const handleDelete = async id => {
     if (id === 1) return;
     if (!window.confirm('Excluir este usuário?')) return;
@@ -89,7 +86,7 @@ export default function AdminUsers() {
   };
 
   if (loading) return <p>Carregando usuários…</p>;
-  if (error)   return <p className="error">{error}</p>;
+  if (error) return <p className="error">{error}</p>;
 
   return (
     <div className="admin-users-page container">
@@ -108,7 +105,6 @@ export default function AdminUsers() {
           {users.map(u => (
             <tr key={u.id}>
               <td>{u.id}</td>
-
               <td>
                 {editingId === u.id ? (
                   <input
@@ -120,7 +116,6 @@ export default function AdminUsers() {
                   u.name
                 )}
               </td>
-
               <td>
                 {editingId === u.id ? (
                   <input
@@ -132,20 +127,28 @@ export default function AdminUsers() {
                   u.email
                 )}
               </td>
-
               <td>
                 {u.id === 1 ? (
                   <span className="badge-admin">Super Admin</span>
                 ) : (
-                  <button
-                    className={`btn-admin-toggle ${u.is_admin ? 'admin' : 'user'}`}
-                    onClick={() => toggleAdmin(u)}
-                  >
-                    {u.is_admin ? 'Despromover' : 'Tornar Admin'}
-                  </button>
+                  <>
+                    {u.is_admin ? (
+                      <span className="badge-admin">Admin</span>
+                    ) : (
+                      <span className="badge-user">Usuário</span>
+                    )}
+                    {/* Botão só visível para superadmin */}
+                    {currentUser.id === 1 && (
+                      <button
+                        className={u.is_admin ? "btn-remove-admin" : "btn-promote"}
+                        onClick={() => toggleAdmin(u)}
+                      >
+                        {u.is_admin ? "Remover Admin" : "Tornar Admin"}
+                      </button>
+                    )}
+                  </>
                 )}
               </td>
-
               <td className="actions">
                 {editingId === u.id ? (
                   <>
@@ -156,7 +159,10 @@ export default function AdminUsers() {
                   <>
                     <button onClick={() => startEdit(u)}>✏️</button>
                     {u.id !== 1 && (
-                      <button className="btn-delete" onClick={() => handleDelete(u.id)}>
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleDelete(u.id)}
+                      >
                         🗑️
                       </button>
                     )}
