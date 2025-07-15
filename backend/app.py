@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from sqlalchemy.future import select
 from db.models import User
@@ -51,6 +52,15 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="RagnaDataBase API", version="1.0.0", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],            
+    # URL: ["https://frontend.com"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Rotas
 app.include_router(user_router)

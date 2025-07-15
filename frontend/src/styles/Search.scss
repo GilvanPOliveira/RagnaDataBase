@@ -1,0 +1,76 @@
+@use './variables' as *;
+
+.search-page {
+  .search-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+
+    input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid $secondary-color;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: $secondary-color;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .results-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+
+    .result-item {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      a {
+        display: flex;
+        text-decoration: none;
+        color: inherit;
+
+        img {
+          width: 64px;
+          height: 64px;
+          object-fit: contain;
+          margin: 0.5rem;
+        }
+
+        div {
+          padding: 0.5rem;
+
+          strong {
+            display: block;
+            margin-bottom: 0.25rem;
+          }
+
+          p {
+            font-size: 0.9rem;
+            color: $text-color;
+          }
+        }
+      }
+    }
+  }
+}

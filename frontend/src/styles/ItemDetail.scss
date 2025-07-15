@@ -1,0 +1,50 @@
+@use './variables' as *;
+
+.item-detail {
+  .detail-header {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      background: white;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .stats {
+      p {
+        margin-bottom: 0.5rem;
+        strong {
+          color: $secondary-color;
+        }
+      }
+    }
+  }
+
+  section {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      margin-bottom: 0.75rem;
+      font-size: 1.2rem;
+      border-bottom: 1px solid $secondary-color;
+      padding-bottom: 0.25rem;
+    }
+
+    ul {
+      list-style: disc inside;
+      li {
+        margin-bottom: 0.4rem;
+      }
+    }
+
+    .error {
+      color: red;
+    }
+  }
+}
