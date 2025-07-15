@@ -1,17 +1,21 @@
+// src/App.jsx
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthProvider from './context/AuthProvider';
-import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
+import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
 
 import Home from './pages/Home';
-import Login from './pages/Login';
 import Search from './pages/Search';
 import ItemDetail from './pages/ItemDetail';
 import Inventory from './pages/Inventory';
 import Lists from './pages/Lists';
 import ListDetail from './pages/ListDetail';
+import Login from './pages/Login';
 import Register from './pages/Register';
-import Profile  from './pages/Profile';
+import Profile from './pages/Profile';
+import AdminUsers from './pages/AdminUsers';
 
 export default function App() {
   return (
@@ -22,19 +26,25 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/item/:id" element={<ItemDetail />} />
 
         {/* privadas */}
         <Route element={<PrivateRoute />}>
-          <Route path="/search" element={<Search />} />
-          <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/lists" element={<Lists />} />
           <Route path="/lists/:id" element={<ListDetail />} />
-          <Route path="/account"   element={<Profile />} />
+          <Route path="/account" element={<Profile />} />
         </Route>
 
+        {/* apenas admin */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin/users" element={<AdminUsers />} />
+        </Route>
+
+        {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
-);
+  );
 }

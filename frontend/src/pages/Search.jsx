@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// src/pages/Search.jsx
+import React, { useState } from 'react';
 import { searchItems } from '../services/api';
 import { Link } from 'react-router-dom';
 import '../styles/Search.scss';
@@ -15,19 +16,18 @@ export default function Search() {
     setLoading(true);
     setError(null);
     try {
-      const data = await searchItems(term, 1, 20);
-      setResults(data.items || []);
+      const { items } = await searchItems(term, 1, 20);
+      setResults(items || []);
     } catch {
       setError('Erro ao buscar itens.');
     } finally {
       setLoading(false);
     }
   }
- 
+
   return (
     <div className="search-page container">
       <h1>Buscar Itens</h1>
-
       <form className="search-form" onSubmit={handleSearch}>
         <input
           type="text"
@@ -39,9 +39,7 @@ export default function Search() {
           {loading ? 'Buscando…' : 'Buscar'}
         </button>
       </form>
-
       {error && <p className="error">{error}</p>}
-
       <ul className="results-list">
         {results.map(item => (
           <li key={item.id} className="result-item">
@@ -55,10 +53,7 @@ export default function Search() {
           </li>
         ))}
       </ul>
-
-      {results.length === 0 && !loading && (
-        <p>Nenhum item encontrado. Tente outro termo.</p>
-      )}
+      {!loading && results.length === 0 && <p>Nenhum item encontrado.</p>}
     </div>
 );
 }

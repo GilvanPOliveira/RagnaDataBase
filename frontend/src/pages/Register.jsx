@@ -1,12 +1,13 @@
-import { useState } from 'react';
+// src/pages/Register.jsx
+import React, { useState } from 'react';
 import { register } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Register.scss';
 
 export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -15,11 +16,17 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
-      await register(email, password);
+      // agora passamos name, email e password
+      await register(name, email, password);
       navigate('/login');
-    } catch {
-      setError('Falha ao cadastrar. Tente outro e‑mail.');
+    } catch (err) {
+      console.error(err.response || err);
+      setError(
+        err.response?.data?.detail ||
+        'Falha ao cadastrar. Verifique seus dados.'
+      );
     } finally {
       setLoading(false);
     }
@@ -35,6 +42,7 @@ export default function Register() {
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
+            placeholder="Seu nome completo"
             required
           />
         </label>
@@ -44,6 +52,7 @@ export default function Register() {
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
+            placeholder="email@exemplo.com"
             required
           />
         </label>
@@ -53,6 +62,7 @@ export default function Register() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
+            placeholder="Mínimo 6 caracteres"
             required
           />
         </label>

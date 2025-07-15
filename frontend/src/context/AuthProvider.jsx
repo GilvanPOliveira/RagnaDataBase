@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContextStore';
-import { getProfile } from '../services/api';
+import { getProfile as fetchProfile } from '../services/api';
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -16,8 +16,10 @@ export default function AuthProvider({ children }) {
     }
     (async () => {
       try {
-        const profile = await getProfile();
-        setUser(profile);
+        const profile = await fetchProfile();
+        // Ajuste conforme seu backend: se vier dentro de { user: {...} }, desestruture abaixo
+        const actual = profile.user || profile;
+        setUser(actual);
       } catch {
         localStorage.removeItem('jwt');
       } finally {
@@ -28,7 +30,8 @@ export default function AuthProvider({ children }) {
 
   const loginSuccess = (token, profile) => {
     localStorage.setItem('jwt', token);
-    setUser(profile);
+    const actual = profile.user || profile;
+    setUser(actual);
     navigate('/');
   };
 
@@ -38,8 +41,14 @@ export default function AuthProvider({ children }) {
     navigate('/login');
   };
 
+  const updateUserProfile = updated => {
+    setUser(updated);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loadingAuth, loginSuccess, logout }}>
+    <AuthContext.Provider
+      value={{ user, loadingAuth, loginSuccess, logout, updateUserProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );

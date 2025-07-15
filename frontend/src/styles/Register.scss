@@ -1,3 +1,4 @@
+/* src/styles/Register.scss */
 @use './variables' as *;
 
 .register-page {
@@ -19,10 +20,9 @@
     gap: 1rem;
 
     label {
-      font-size: 0.9rem;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      font-size: 0.9rem;
 
       input {
         padding: 0.5rem;
@@ -47,8 +47,8 @@
 
     .error {
       color: red;
-      font-size: 0.9rem;
       text-align: center;
+      font-size: 0.9rem;
     }
   }
 }

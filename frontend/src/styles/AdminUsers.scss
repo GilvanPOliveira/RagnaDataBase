@@ -1,0 +1,75 @@
+/* src/styles/AdminUsers.scss */
+@use './variables' as *;
+
+.admin-users-page {
+  padding: 2rem 0;
+  h1 {
+    margin-bottom: 1.5rem;
+    color: $primary-color;
+    text-align: center;
+  }
+
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+
+    thead {
+      background: $secondary-color;
+      th {
+        padding: 0.75rem;
+        color: white;
+        text-align: left;
+      }
+    }
+
+    tbody tr {
+      &:nth-child(even) { background: #f9f9f9; }
+      &:hover { background: #eef; }
+    }
+
+    td {
+      padding: 0.6rem;
+      border: 1px solid #ddd;
+    }
+
+    .badge-admin {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      background: $primary-color;
+      color: white;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .badge-user {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      background: #ccc;
+      color: #333;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .actions button {
+      margin-right: 0.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.2rem;
+    }
+
+    .btn-promote {
+      color: $primary-color;
+    }
+    .btn-delete {
+      color: #c0392b;
+    }
+
+    .error {
+      color: #c0392b;
+      margin-top: 1rem;
+    }
+  }
+}

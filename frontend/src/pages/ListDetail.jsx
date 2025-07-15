@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// src/pages/ListDetail.jsx
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   getList,
@@ -23,14 +24,14 @@ export default function ListDetail() {
       setLoading(true);
       setError(null);
       try {
-        const listData = await getList(id);
-        const itemsData = await getListItems(id);
+        const l = await getList(id);
+        const { items: fetchedItems } = await getListItems(id);
         if (isMounted) {
-          setList(listData);
-          setItems(itemsData.items || []);
+          setList(l);
+          setItems(fetchedItems || []);
         }
       } catch {
-        if (isMounted) setError('Falha ao carregar a lista.');
+        if (isMounted) setError('Erro ao carregar lista.');
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -42,23 +43,23 @@ export default function ListDetail() {
 
   async function handleAdd(e) {
     e.preventDefault();
-    if (!newItemId.trim()) return;
     try {
       await addItemToList(id, newItemId, newQty);
       setNewItemId('');
       setNewQty(1);
-      const itemsData = await getListItems(id);
-      setItems(itemsData.items || []);
+      // recarrega itens
+      const { items: refreshed } = await getListItems(id);
+      setItems(refreshed || []);
     } catch {
       setError('Erro ao adicionar item.');
     }
   }
 
-  async function handleRemove(listItemId) {
+  async function handleRemove(liId) {
     try {
-      await removeItemFromList(id, listItemId);
-      const itemsData = await getListItems(id);
-      setItems(itemsData.items || []);
+      await removeItemFromList(id, liId);
+      const { items: refreshed } = await getListItems(id);
+      setItems(refreshed || []);
     } catch {
       setError('Erro ao remover item.');
     }
