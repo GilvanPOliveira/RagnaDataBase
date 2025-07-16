@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContextStore';
 import { getProfile as fetchProfile } from '../services/api';
@@ -17,7 +17,6 @@ export default function AuthProvider({ children }) {
     (async () => {
       try {
         const profile = await fetchProfile();
-        // Ajuste conforme seu backend: se vier dentro de { user: {...} }, desestruture abaixo
         const actual = profile.user || profile;
         setUser(actual);
       } catch {

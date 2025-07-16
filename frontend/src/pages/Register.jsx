@@ -1,5 +1,4 @@
-// src/pages/Register.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { register } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Register.scss';
@@ -18,7 +17,6 @@ export default function Register() {
     setError(null);
 
     try {
-      // agora passamos name, email e password
       await register(name, email, password);
       navigate('/login');
     } catch (err) {

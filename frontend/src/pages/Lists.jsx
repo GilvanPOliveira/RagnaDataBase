@@ -1,5 +1,4 @@
-// src/pages/Lists.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getLists, createList, deleteList } from '../services/api';
 import '../styles/Lists.scss';

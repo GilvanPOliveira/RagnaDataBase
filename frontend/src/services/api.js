@@ -1,4 +1,3 @@
-// src/services/api.js
 import axios from 'axios';
 
 const api = axios.create({
@@ -42,14 +41,12 @@ export async function getProfile() {
 
 // Atualiza perfil (name, email, password opcional)
 export async function updateProfile(data) {
-  // data deverá ter: { name, email, current_password, new_password? }
   const res = await api.patch('/users/me', data);
   return res.data;
 }
 
 // Exclui a conta do usuário logado, requer a senha atual
 export async function deleteAccount(password) {
-  // axios.delete não aceita `data` no 2º parâmetro, então passamos tudo em config
   const res = await api.delete('/users/me', {
     data: { password }
   });
@@ -60,21 +57,18 @@ export async function deleteAccount(password) {
 
 // Lista todos os usuários (admin)
 export async function getAllUsers() {
-  // GET /users → [{ id, email, name, is_admin? }, …]
   const res = await api.get('/users');
   return res.data;
 }
 
 // Atualiza dados de um usuário pelo ID
 export async function updateUserById(id, data) {
-  // PATCH /users/{id}
   const res = await api.patch(`/users/${id}`, data);
   return res.data;
 }
 
 // Remove um usuário pelo ID
 export async function deleteUserById(id) {
-  // DELETE /users/{id}
   const res = await api.delete(`/users/${id}`);
   return res.data;
 }

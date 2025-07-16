@@ -1,5 +1,4 @@
-// src/pages/Profile.jsx
-import React, { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContextStore';
 import { updateProfile, deleteAccount } from '../services/api';
@@ -8,7 +7,8 @@ import '../styles/Profile.scss';
 export default function Profile() {
   const { user, loadingAuth, logout, updateUserProfile } = useContext(AuthContext);
 
-  // Hooks no topo
+  const isSuperAdmin = user?.id === 1;
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -19,7 +19,6 @@ export default function Profile() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
-  // Preenche com dados atuais
   useEffect(() => {
     if (!loadingAuth && user) {
       setName(user.name || '');
@@ -37,9 +36,9 @@ export default function Profile() {
     .slice(0, 2)
     .toUpperCase() || 'U';
 
-  // Salvar alterações de perfil
   async function handleSave(e) {
     e.preventDefault();
+    if (isSuperAdmin) return; 
     setSaving(true);
     setError(null);
 
@@ -47,7 +46,6 @@ export default function Profile() {
     if (name !== user.name) payload.name = name;
     if (email !== user.email) payload.email = email;
 
-    // Se trocar senha, exige senha atual
     if (newPassword.trim()) {
       if (!currentPassword.trim()) {
         setError('Informe sua senha atual para alterar a senha.');
@@ -77,9 +75,9 @@ export default function Profile() {
     }
   }
 
-  // Excluir conta
   async function handleDelete(e) {
     e.preventDefault();
+    if (isSuperAdmin) return; 
     if (!deletePassword.trim()) {
       setDeleteError('Informe sua senha para excluir a conta.');
       return;
@@ -111,7 +109,6 @@ export default function Profile() {
       </div>
 
       <div className="profile-content">
-        {/* Editar Perfil */}
         <section className="card edit-card">
           <h2>Editar Perfil</h2>
           <form onSubmit={handleSave}>
@@ -122,16 +119,18 @@ export default function Profile() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
+                disabled={isSuperAdmin}
               />
             </label>
 
             <label>
-              E‑mail
+              E-mail
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
+                disabled={isSuperAdmin}
               />
             </label>
 
@@ -142,6 +141,7 @@ export default function Profile() {
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 placeholder="Sua senha atual"
+                disabled={isSuperAdmin}
               />
             </label>
 
@@ -152,39 +152,41 @@ export default function Profile() {
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder="Deixe em branco para manter"
+                disabled={isSuperAdmin}
               />
             </label>
 
-            <button type="submit" disabled={saving}>
+            <button type="submit" disabled={saving || isSuperAdmin}>
               {saving ? 'Salvando…' : 'Salvar Alterações'}
             </button>
             {error && <p className="error">{error}</p>}
           </form>
         </section>
 
-        {/* Excluir Conta */}
-        <section className="card delete-card">
-          <h2>Excluir Conta</h2>
-          <p className="warning">
-            Esta ação é irreversível. Todos os seus dados serão apagados.
-          </p>
-          <form onSubmit={handleDelete}>
-            <label>
-              Senha Atual
-              <input
-                type="password"
-                value={deletePassword}
-                onChange={e => setDeletePassword(e.target.value)}
-                placeholder="Digite sua senha"
-                required
-              />
-            </label>
-            <button type="submit" disabled={deleting}>
-              {deleting ? 'Excluindo…' : 'Excluir Conta'}
-            </button>
-            {deleteError && <p className="error">{deleteError}</p>}
-          </form>
-        </section>
+        {!isSuperAdmin && (
+          <section className="card delete-card">
+            <h2>Excluir Conta</h2>
+            <p className="warning">
+              Esta ação é irreversível. Todos os seus dados serão apagados.
+            </p>
+            <form onSubmit={handleDelete}>
+              <label>
+                Senha Atual
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={e => setDeletePassword(e.target.value)}
+                  placeholder="Digite sua senha"
+                  required
+                />
+              </label>
+              <button type="submit" disabled={deleting}>
+                {deleting ? 'Excluindo…' : 'Excluir Conta'}
+              </button>
+              {deleteError && <p className="error">{deleteError}</p>}
+            </form>
+          </section>
+        )}
       </div>
     </div>
   );

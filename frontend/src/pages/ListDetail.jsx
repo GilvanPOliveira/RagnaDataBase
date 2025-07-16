@@ -1,5 +1,4 @@
-// src/pages/ListDetail.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   getList,
@@ -47,7 +46,6 @@ export default function ListDetail() {
       await addItemToList(id, newItemId, newQty);
       setNewItemId('');
       setNewQty(1);
-      // recarrega itens
       const { items: refreshed } = await getListItems(id);
       setItems(refreshed || []);
     } catch {

@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthProvider from './context/AuthProvider';
@@ -22,14 +21,12 @@ export default function App() {
     <AuthProvider>
       <Navbar />
       <Routes>
-        {/* públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/search" element={<Search />} />
         <Route path="/item/:id" element={<ItemDetail />} />
 
-        {/* privadas */}
         <Route element={<PrivateRoute />}>
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/lists" element={<Lists />} />
@@ -37,12 +34,10 @@ export default function App() {
           <Route path="/account" element={<Profile />} />
         </Route>
 
-        {/* apenas admin */}
         <Route element={<AdminRoute />}>
           <Route path="/admin/users" element={<AdminUsers />} />
         </Route>
 
-        {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>

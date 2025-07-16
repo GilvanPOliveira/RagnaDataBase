@@ -1,5 +1,4 @@
-// src/pages/Inventory.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   getInventoryList,
   addInventoryItem,

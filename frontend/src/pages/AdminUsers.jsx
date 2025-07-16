@@ -1,5 +1,4 @@
-// src/pages/AdminUsers.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   getAllUsers,
   updateUserById,
@@ -63,7 +62,7 @@ export default function AdminUsers() {
   };
 
   const toggleAdmin = async u => {
-    if (u.id === 1) return; // Superadmin é intocável
+    if (u.id === 1) return;
     try {
       await setUserAdminStatus(u.id, !u.is_admin);
       await loadUsers();
@@ -88,91 +87,89 @@ export default function AdminUsers() {
   if (loading) return <p>Carregando usuários…</p>;
   if (error) return <p className="error">{error}</p>;
 
-  return (
-    <div className="admin-users-page container">
-      <h1>Gerenciar Usuários</h1>
-      <table className="users-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>E‑mail</th>
-            <th>Admin?</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id}>
-              <td>{u.id}</td>
-              <td>
-                {editingId === u.id ? (
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  />
-                ) : (
-                  u.name
-                )}
-              </td>
-              <td>
-                {editingId === u.id ? (
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                  />
-                ) : (
-                  u.email
-                )}
-              </td>
-              <td>
-                {u.id === 1 ? (
-                  <span className="badge-admin">Super Admin</span>
-                ) : (
-                  <>
-                    {u.is_admin ? (
-                      <span className="badge-admin">Admin</span>
-                    ) : (
-                      <span className="badge-user">Usuário</span>
-                    )}
-                    {/* Botão só visível para superadmin */}
-                    {currentUser.id === 1 && (
-                      <button
-                        className={u.is_admin ? "btn-remove-admin" : "btn-promote"}
-                        onClick={() => toggleAdmin(u)}
-                      >
-                        {u.is_admin ? "Remover Admin" : "Tornar Admin"}
-                      </button>
-                    )}
-                  </>
-                )}
-              </td>
-              <td className="actions">
-                {editingId === u.id ? (
-                  <>
-                    <button onClick={() => saveEdit(u.id)}>💾</button>
-                    <button onClick={cancelEdit}>✖️</button>
-                  </>
-                ) : (
-                  <>
+return (
+  <div className="admin-users-page container">
+    <h1>Gerenciar Usuários</h1>
+    <table className="users-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Permissões</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map(u => (
+          <tr key={u.id}>
+            <td>
+              {editingId === u.id ? (
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                />
+              ) : (
+                u.name
+              )}
+            </td>
+            <td>
+              {editingId === u.id ? (
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                />
+              ) : (
+                u.email
+              )}
+            </td>
+            <td>
+              {u.id === 1 ? (
+                <span className="badge-admin">Super Admin</span>
+              ) : (
+                u.is_admin
+                  ? <span className="badge-admin">Admin</span>
+                  : <span className="badge-user">Usuário</span>
+              )}
+            </td>
+            <td className="actions">
+              {editingId === u.id ? (
+                <>
+                  <button onClick={() => saveEdit(u.id)}>✔️</button>
+                  <button onClick={cancelEdit}>✖️</button>
+                </>
+              ) : (
+                <>
+                  
+                  {u.id !== 1 && (
                     <button onClick={() => startEdit(u)}>✏️</button>
-                    {u.id !== 1 && (
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(u.id)}
-                      >
-                        🗑️
-                      </button>
-                    )}
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+                  )}
+                  {currentUser.id === 1 && u.id !== 1 && (
+                    <button
+                      className={u.is_admin ? "btn-remove-admin" : "btn-promote"}
+                      onClick={() => toggleAdmin(u)}
+                    >
+                      {u.is_admin ? "⚔️" : "👑"}
+                    </button>
+                  )}
+
+                  {u.id !== 1 && (
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDelete(u.id)}
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 }

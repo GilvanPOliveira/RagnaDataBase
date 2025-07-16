@@ -1,5 +1,4 @@
-// src/pages/Login.jsx
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { login, getProfile } from '../services/api';
 import AuthContext from '../context/AuthContextStore';
 import '../styles/Login.scss';

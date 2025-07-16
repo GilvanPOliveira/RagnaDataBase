@@ -1,53 +1,64 @@
-// src/pages/Home.jsx
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContextStore';
 import '../styles/Home.scss';
 
+import logoIcon from '../assets/logo.png';
+import inventoryIcon from '../assets/inventory.png';
+import listsIcon from '../assets/lists.png';
+import profileIcon from '../assets/status.png';
+import adminIcon from '../assets/config.png';
+
 export default function Home() {
   const { user } = useContext(AuthContext);
+  const isAdmin = Boolean(user?.is_admin) || user?.id === 1;
+  const [term, setTerm] = useState('');
+  const navigate = useNavigate();
 
-  // único admin pelo e‑mail
-  const isAdmin = user?.email === 'admin@admin.com';
+  function onSearch(e) {
+    e.preventDefault();
+    const q = term.trim();
+    if (!q) return;
+    navigate(`/search?term=${encodeURIComponent(q)}`);
+  }
 
   return (
     <div className="home-page container">
       <div className="hero">
-        <h1>Bem‑vindo ao RagnaDataBase</h1>
+        <img src={logoIcon} alt="RagnaDataBase" className="logo" />
+        <h1>Bem-vindo ao RagnaDataBase</h1>
         <p>Encontre, organize e gerencie seus itens de forma prática.</p>
+
+        <form className="home-search" onSubmit={onSearch}>
+          <input
+            type="text"
+            placeholder="Digite o nome do item"
+            value={term}
+            onChange={e => setTerm(e.target.value)}
+          />
+          <button type="submit">Buscar</button>
+        </form>
       </div>
-      <nav className="home-nav">
-        <Link to="/search" className="card">
-          🔍 <span>Buscar Itens</span>
-        </Link>
-        {user ? (
-          <>
-            <Link to="/inventory" className="card">
-              🎒 <span>Meu Inventário</span>
-            </Link>
-            <Link to="/lists" className="card">
-              📋 <span>Minhas Listas</span>
-            </Link>
-            <Link to="/account" className="card">
-              👤 <span>Minha Conta</span>
-            </Link>
-            {isAdmin && (
-              <Link to="/admin/users" className="card admin-card">
-                ⚙️ <span>Gerenciar Usuários</span>
-              </Link>
-            )}
-          </>
-        ) : (
-          <>
-            <Link to="/login" className="card">
-              🔑 <span>Login</span>
-            </Link>
-            <Link to="/register" className="card">
-              ✍️ <span>Cadastro</span>
-            </Link>
-          </>
-        )}
-      </nav>
+
+      {user && (
+        <nav className="home-nav">
+          <LinkCard to="/inventory" icon={inventoryIcon} label="Meu Inventário" />
+          <LinkCard to="/lists"     icon={listsIcon}     label="Minhas Listas" />
+          <LinkCard to="/account"   icon={profileIcon}   label="Minha Conta" />
+          {isAdmin && (
+            <LinkCard to="/admin/users" icon={adminIcon} label="Gerenciar Usuários" admin />
+          )}
+        </nav>
+      )}
     </div>
-);
+  )
+}
+
+function LinkCard({ to, icon, label, admin }) {
+  return (
+    <a href={to} className={`card${admin ? ' admin-card' : ''}`}>
+      <img src={icon} alt={label} className="card-icon" />
+      <span>{label}</span>
+    </a>
+  );
 }
