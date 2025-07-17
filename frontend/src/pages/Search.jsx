@@ -1,18 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { searchItems, getItemById } from '../services/api';
+import { searchItems } from '../services/api';
+import AuthContext from '../context/AuthContextStore';
 import '../styles/Search.scss';
 
 export default function Search() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   const [name, setName] = useState('');
   const [results, setResults] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const perPage = 20;
+  const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -24,21 +28,27 @@ export default function Search() {
     }
   }, [location.search]);
 
-  async function runSearch(q, pageNumber) {
+  async function runSearch(q, pageNumber = 1) {
     setLoading(true);
     setError(null);
     try {
-      if (/^\d+$/.test(q)) {
-        const item = await getItemById(q);
-        setResults(item ? [item] : []);
-        setTotalPages(1);
+      if (!isNaN(q)) {
+        // Busca por ID se for número
+        const response = await fetch(`http://localhost:8000/item/${q}`);
+        if (!response.ok) throw new Error('Item não encontrado.');
+        const item = await response.json();
+        setResults([item]);
+        setTotal(1);
       } else {
-        const { results, total } = await searchItems(q, pageNumber, 20);
+        // Busca por nome com paginação
+        const { results, total } = await searchItems(q, pageNumber, perPage);
         setResults(results || []);
-        setTotalPages(Math.ceil((total || 0) / 20));
+        setTotal(total || 0);
       }
     } catch {
       setError('Erro ao buscar itens.');
+      setResults([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -55,6 +65,25 @@ export default function Search() {
     setPage(newPage);
     runSearch(name, newPage);
   }
+
+  function handleQuantityChange(id, delta) {
+    setQuantities(prev => ({
+      ...prev,
+      [id]: Math.max(0, (prev[id] || 0) + delta)
+    }));
+  }
+
+  function handleAddToInventory(id) {
+    const quantity = quantities[id] || 0;
+    alert(`Adicionar ${quantity} unidades do item ${id} ao inventário`);
+  }
+
+  function handleAddToList(id) {
+    const quantity = quantities[id] || 0;
+    alert(`Adicionar ${quantity} unidades do item ${id} à lista`);
+  }
+
+  const totalPages = Math.ceil(total / perPage);
 
   return (
     <div className="search-page container">
@@ -80,17 +109,38 @@ export default function Search() {
             <li key={item.id} className="result-item">
               <Link to={`/item/${item.id}`}>
                 <img
-                  src={`https://static.divine-pride.net/images/items/item/${item.id}.png`}
+                  src={`https://static.divine-pride.net/images/items/collection/${item.id}.png`}
                   alt={item.name}
                   loading="lazy"
                   width={64}
                   height={64}
                 />
-                <div>
-                  <strong>{item.name}</strong>
-                  <p>Preço NPC: -- </p>
-                </div>
               </Link>
+              <div>
+                <strong>{item.name}</strong>
+                {user && (
+                  <div className="quantity-controls">
+                    <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
+                    <input
+                      type="number"
+                      value={quantities[item.id] || 0}
+                      onChange={(e) =>
+                        setQuantities(prev => ({
+                          ...prev,
+                          [item.id]: Math.max(0, parseInt(e.target.value) || 0)
+                        }))
+                      }
+                    />
+                    <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
+                  </div>
+                )}
+                {user && (
+                  <div className="actions">
+                    <button onClick={() => handleAddToInventory(item.id)}>Adicionar ao Inventário</button>
+                    <button onClick={() => handleAddToList(item.id)}>Adicionar à Lista</button>
+                  </div>
+                )}
+              </div>
             </li>
           ))
         ) : (
@@ -99,20 +149,19 @@ export default function Search() {
       </ul>
 
       {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            disabled={page === 1 || loading}
-            onClick={() => handlePageChange(page - 1)}
-          >
-            Página Anterior
-          </button>
-          <span>Página {page} de {totalPages}</span>
-          <button
-            disabled={page === totalPages || loading}
-            onClick={() => handlePageChange(page + 1)}
-          >
-            Próxima Página
-          </button>
+        <div className="pagination-footer">
+          <span>Total de resultados: {total}</span>
+          <div className="pagination">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => handlePageChange(i + 1)}
+                disabled={page === i + 1}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

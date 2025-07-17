@@ -32,7 +32,7 @@ export default function Home() {
         <form className="home-search" onSubmit={onSearch}>
           <input
             type="text"
-            placeholder="Digite o nome do item"
+            placeholder="Digite o nome ou ID do item"
             value={name}
             onChange={e => setName(e.target.value)}
           />

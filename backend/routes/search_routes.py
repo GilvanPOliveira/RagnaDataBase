@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, Query
-from typing import Optional
 from auth.auth_bearer import JWTBearer
-from auth.auth_dependencies import user_required
-from services.dp_search import dp_search_items
+from services.dp_search import search_items_by_name
 
 router = APIRouter(prefix="/search", tags=["Item Name Search"])
 
@@ -11,10 +9,9 @@ async def search_items(
     name: str,
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
-    _=Depends(JWTBearer()),
-    __=Depends(user_required)
+    _=Depends(JWTBearer())
 ):
-    all_results = await dp_search_items(name)
+    all_results = await search_items_by_name(name)
 
     total = len(all_results)
     start = (page - 1) * per_page
