@@ -1,76 +1,94 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import '../styles/ItemDetail.scss';
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { api } from "../services/api";
+import {
+  BRANCHES,
+  iconUrl,
+} from "../utils/classIcons";
+import "../styles/ItemDetail.scss";
+
+/* ---------- mapa ID → ramo ---------- */
+const ID_TO_BRANCH = (() => {
+  const m = new Map();
+  BRANCHES.forEach((br) =>
+    br.stages.flat().forEach((id) => id !== undefined && m.set(id, br.key))
+  );
+  return m;
+})();
 
 export default function ItemDetail() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function fetchItem() {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`http://localhost:8000/item/${id}`);
-        if (!response.ok) throw new Error('Item não encontrado.');
-        const data = await response.json();
-        setItem(data);
-      } catch {
-        setError('Erro ao carregar o item.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchItem();
+    if (!id) return;
+    setLoading(true);
+    api
+      .get(`/item/${id}`)
+      .then((r) => setItem(r.data))
+      .catch(() => setItem(null))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <p className="loading">Carregando...</p>;
-  if (error) return <p className="error">{error}</p>;
-  if (!item) return null;
+  if (loading) return <p className="loading">Carregando…</p>;
+  if (!item) return <p className="no-results">Item não encontrado.</p>;
+
+  const allowedIds = new Set(item.allowed_classes ?? []);
 
   return (
-    <div className="item-detail container">
-      <h1>{item.name}</h1>
+    <div className="item-detail-page">
+      <h1 className="item-title">
+        <img src={item.image_icon} alt="" className="item-icon" />
+        {item.name} <span className="item-id">#{item.id}</span>
+      </h1>
 
-      <img
-        src={`https://static.divine-pride.net/images/items/collection/${item.id}.png`}
-        alt={item.name}
-        className="item-image"
-        width={96}
-        height={96}
-      />
+      <div className="item-body">
+        <div className="item-info">
+          <p>{item.description}</p>
+          <ul className="item-stats">
+            <li>Peso: {item.weight}</li>
+            <li>Slots: {item.slots}</li>
+            <li>Ataque: {item.attack}</li>
+            <li>Defesa: {item.defense ?? "-"}</li>
+            <li>Nível Necessário: {item.requiredLevel ?? "-"}</li>
+            <li>Preço NPC: {item.price ?? "-"}</li>
+          </ul>
+        </div>
 
-      <p className="description">{item.description}</p>
+        <table className="job-grid">
+          <tbody>
+            {BRANCHES[0].stages.map((_, rowIdx) => (
+              <tr key={rowIdx}>
+                {BRANCHES.map((br) => (
+                  <td key={br.key} className="job-cell">
+                    <div className="job-cell-icons">
+                      {br.stages[rowIdx].map((iconId) => {
+                        const enabled = allowedIds.has(iconId);
+                        return (
+                          <img
+                            key={iconId}
+                            src={iconUrl(iconId, enabled)}
+                            className={enabled ? "job-icon" : "job-icon disabled"}
+                            title={br.pt}
+                            alt=""
+                          />
+                        );
+                      })}
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      <ul className="item-info">
-        <li>Tipo: {item.type || '-'}</li>
-        <li>Categoria: {item.subtype || '-'}</li>
-        <li>Força de Ataque: {item.attack || '-'}</li>
-        <li>Defesa: {item.defense || '-'}</li>
-        <li>Propriedade: {item.property || '-'}</li>
-        <li>Peso: {item.weight || '-'}</li>
-        <li>Slots: {item.slots || '-'}</li>
-        <li>Nível da arma: {item.weapon_level || '-'}</li>
-        <li>Nível necessário: {item.required_level || '-'}</li>
-        <li>Classes: {item.classes || '-'}</li>
-        <li>Preço NPC: {item.npc_price || '-'}</li>
-        <li>Adicionado em: {item.added_date || '-'}</li>
-      </ul>
-
-      <h2>Vendido por NPC</h2>
-      <ul className="sold-by">
-        {item.sold_by && item.sold_by.length > 0 ? (
-          item.sold_by.map((npc, index) => (
-            <li key={index}>
-              {npc.name || 'Unknown'} - {npc.map || '-'} - {npc.price || '-'} zeny
-            </li>
-          ))
-        ) : (
-          <li>Nenhum NPC encontrado.</li>
+        {item.image_collection && (
+          <img src={item.image_collection} alt="" className="collection-img" />
         )}
-      </ul>
+      </div>
+
+      <Link to="/" className="back-link">← Voltar</Link>
     </div>
   );
 }

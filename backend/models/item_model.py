@@ -68,6 +68,8 @@ class ItemModel(BaseModel):
     gender: Optional[int] = Field(default=None)
     range: Optional[int] = Field(default=None)
     attribute: Optional[int] = Field(default=None)
+    allowed_classes: Optional[List[int]] = None
+    class_icons: Optional[List[str]] = None
 
     # Composição e posição
     location: Optional[str] = Field(default=None)

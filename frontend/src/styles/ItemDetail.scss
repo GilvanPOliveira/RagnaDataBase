@@ -1,76 +1,101 @@
-@use './variables' as *;
-
 .item-detail {
-  padding: 2rem 1rem;
-  max-width: 600px;
+  padding: 2rem;
+  max-width: 960px;
   margin: 0 auto;
+}
 
-  h1 {
-    font-size: 2rem;
-    color: #0d1f3c;
-    text-align: center;
+.item-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .item-icon {
+    width: 64px;
+    height: 64px;
+    image-rendering: pixelated;
+  }
+
+  .item-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+
+  .item-id {
+    color: #888;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+  }
+}
+
+.item-detail-body {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+
+  .item-info {
+    flex: 1 1 300px;
+  }
+
+  .item-description {
+    background: #f8f8f8;
+    padding: 1rem;
+    border-radius: 6px;
+    line-height: 1.5;
+    white-space: pre-line;
     margin-bottom: 1rem;
   }
 
-  .item-image {
+  .job-grid {
+    margin-top: 1rem;
+    width: 100%;
+    border-collapse: collapse;
+
+    td {
+      padding: 0.3rem;
+      text-align: center;
+    }
+
+    .job-cell-icons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+
+      img {
+        width: 24px;
+        height: 24px;
+        image-rendering: pixelated;
+        &.disabled {
+          opacity: 0.3;
+        }
+      }
+    }
+  }
+
+  .collection-img {
+    width: 200px;
+    height: auto;
+    object-fit: contain;
+    image-rendering: pixelated;
+    margin: 0 auto;
     display: block;
-    margin: 0 auto 1rem;
-    border-radius: 8px;
     border: 1px solid #ddd;
-    background: #fff;
     padding: 0.5rem;
+    background-color: #fff;
+    border-radius: 8px;
   }
+}
 
-  .description {
-    text-align: center;
-    color: #333;
-    margin-bottom: 1.5rem;
-    line-height: 1.4;
-  }
+.back-link {
+  display: inline-block;
+  margin-top: 2rem;
+  color: #555;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
 
-  .item-info {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 2rem;
-
-    li {
-      padding: 0.4rem 0;
-      border-bottom: 1px solid #eee;
-      color: #333;
-      font-size: 0.95rem;
-    }
-  }
-
-  h2 {
-    margin-top: 2rem;
-    font-size: 1.2rem;
-    color: #0d1f3c;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
-  }
-
-  .sold-by {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
-
-    li {
-      padding: 0.4rem 0;
-      border-bottom: 1px dashed #ddd;
-      font-size: 0.9rem;
-      color: #444;
-    }
-  }
-
-  .loading {
-    text-align: center;
-    font-size: 1rem;
-    color: #333;
-  }
-
-  .error {
-    text-align: center;
-    color: #d32f2f;
-    font-weight: bold;
+  &:hover {
+    color: #000;
   }
 }

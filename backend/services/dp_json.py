@@ -7,6 +7,16 @@ from models.item_model import (
 from utils.env_loader import get_env_var
 
 API_KEY = get_env_var("DIVINE_PRIDE_API_KEY")
+IMG_JOBS = "https://static.divine-pride.net/images/jobs/icon_jobs_"
+
+ALL_CLASSES_IDS = [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20,
+    21, 23, 24, 25, 4002, 4003, 4004, 4005, 4006, 4007, 4008, 4009, 4010, 4011,
+    4012, 4013, 4015, 4016, 4017, 4018, 4019, 4020, 4021, 4054, 4055, 4056, 4057,
+    4058, 4059, 4066, 4067, 4068, 4069, 4070, 4071, 4072, 4190, 4211, 4212, 4215,
+    4218, 4239, 4240, 4252, 4253, 4254, 4255, 4256, 4257, 4258, 4259, 4260, 4261,
+    4262, 4263, 4264, 4302, 4303, 4304, 4305, 4306, 4307, 4308
+]
 
 def strip_colors(text: str) -> str:
     if not text:
@@ -15,11 +25,16 @@ def strip_colors(text: str) -> str:
 
 async def fetch_dp_json(item_id: int) -> ItemModel:
     url = f"https://www.divine-pride.net/api/database/Item/{item_id}?apiKey={API_KEY}&server=bRO"
-
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
         r.raise_for_status()
         data = r.json()
+
+        allowed = data.get("equipJobs")
+
+        # Se não houver allowed_classes da API, retorna todas as 82
+        allowed_classes = allowed or ALL_CLASSES_IDS
+        class_icons = [f"{IMG_JOBS}{cls_id}.png" for cls_id in allowed_classes]
 
         return ItemModel(
             id=data["id"],
@@ -33,7 +48,6 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
             image_icon=f"https://static.divine-pride.net/images/items/item/{item_id}.png",
             image_collection=f"https://static.divine-pride.net/images/items/collection/{item_id}.png",
             slots=data.get("slots"),
-            itemLevel=data.get("itemLevel"),
             itemTypeId=data.get("itemTypeId"),
             itemSubTypeId=data.get("itemSubTypeId"),
             attack=data.get("attack"),
@@ -95,7 +109,7 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
                 f"http://db.irowiki.org/db/item-info/{item_id}/",
                 f"https://kafra.kr/#!/en/KRO/itemdetail/{item_id}"
             ],
-            usable_by=strip_colors(data.get("description")).split(
-                "Usable By:")[-1].strip() if "Usable By:" in data.get("description", "") else None,
-            weapon_level=data.get("weaponLevel")
+            weapon_level=data.get("weaponLevel"),
+            allowed_classes=allowed_classes,
+            class_icons=class_icons
         )
