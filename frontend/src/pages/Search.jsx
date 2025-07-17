@@ -1,28 +1,42 @@
 import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { searchItems } from '../services/api';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { searchItems, getItemById } from '../services/api';
 import '../styles/Search.scss';
 
 export default function Search() {
   const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const initialTerm = params.get('term') || '';
+  const navigate = useNavigate();
 
-  const [term, setTerm] = useState(initialTerm);
+  const [name, setName] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    if (initialTerm) runSearch(initialTerm);
-  }, [initialTerm]);
+    const params = new URLSearchParams(location.search);
+    const term = params.get('name') || '';
+    if (term) {
+      setName(term);
+      setPage(1);
+      runSearch(term, 1);
+    }
+  }, [location.search]);
 
-  async function runSearch(q) {
+  async function runSearch(q, pageNumber) {
     setLoading(true);
     setError(null);
     try {
-      const { results } = await searchItems(q, 1, 20);
-      setResults(results || []);
+      if (/^\d+$/.test(q)) {
+        const item = await getItemById(q);
+        setResults(item ? [item] : []);
+        setTotalPages(1);
+      } else {
+        const { results, total } = await searchItems(q, pageNumber, 20);
+        setResults(results || []);
+        setTotalPages(Math.ceil((total || 0) / 20));
+      }
     } catch {
       setError('Erro ao buscar itens.');
     } finally {
@@ -32,9 +46,14 @@ export default function Search() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    const q = term.trim();
+    const q = name.trim();
     if (!q) return;
-    runSearch(q);
+    navigate(`/search?name=${encodeURIComponent(q)}`);
+  }
+
+  function handlePageChange(newPage) {
+    setPage(newPage);
+    runSearch(name, newPage);
   }
 
   return (
@@ -43,9 +62,9 @@ export default function Search() {
       <form className="search-form" onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Digite o nome do item"
-          value={term}
-          onChange={e => setTerm(e.target.value)}
+          placeholder="Digite o nome ou ID do item"
+          value={name}
+          onChange={e => setName(e.target.value)}
           disabled={loading}
         />
         <button type="submit" disabled={loading}>
@@ -78,6 +97,24 @@ export default function Search() {
           !loading && <p>Nenhum item encontrado.</p>
         )}
       </ul>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            disabled={page === 1 || loading}
+            onClick={() => handlePageChange(page - 1)}
+          >
+            Página Anterior
+          </button>
+          <span>Página {page} de {totalPages}</span>
+          <button
+            disabled={page === totalPages || loading}
+            onClick={() => handlePageChange(page + 1)}
+          >
+            Próxima Página
+          </button>
+        </div>
+      )}
     </div>
   );
 }

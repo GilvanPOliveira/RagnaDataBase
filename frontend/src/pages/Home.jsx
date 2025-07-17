@@ -12,14 +12,14 @@ import adminIcon from '../assets/config.png';
 export default function Home() {
   const { user } = useContext(AuthContext);
   const isAdmin = Boolean(user?.is_admin) || user?.id === 1;
-  const [term, setTerm] = useState('');
+  const [name, setName] = useState('');
   const navigate = useNavigate();
 
   function onSearch(e) {
     e.preventDefault();
-    const q = term.trim();
+    const q = name.trim();
     if (!q) return;
-    navigate(`/search?term=${encodeURIComponent(q)}`);
+    navigate(`/search?name=${encodeURIComponent(q)}`);
   }
 
   return (
@@ -33,8 +33,8 @@ export default function Home() {
           <input
             type="text"
             placeholder="Digite o nome do item"
-            value={term}
-            onChange={e => setTerm(e.target.value)}
+            value={name}
+            onChange={e => setName(e.target.value)}
           />
           <button type="submit">Buscar</button>
         </form>
