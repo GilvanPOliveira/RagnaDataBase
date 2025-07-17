@@ -3,7 +3,7 @@ from services.dp_search import search_items_by_name
 from sources.manager import get_item_from_sources
 from models.item_model import ItemModel
 
-router = APIRouter()
+router = APIRouter(tags=["Item Search"])
 
 @router.get("/item/{item_id}", response_model=ItemModel)
 async def get_item(item_id: int):
@@ -11,7 +11,8 @@ async def get_item(item_id: int):
         item = await get_item_from_sources(item_id)
         return item
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=f"Item não encontrado. {str(e)}")
+
 
 @router.get("/search")
 async def search_items(
@@ -33,4 +34,4 @@ async def search_items(
             "results": paginated
         }
     except Exception as e:
-        return {"detail": f"Erro ao buscar item: {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar item: {str(e)}")

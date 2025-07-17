@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getItemById } from '../services/api';
 import '../styles/ItemDetail.scss';
 
 export default function ItemDetail() {
@@ -10,51 +9,68 @@ export default function ItemDetail() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    (async () => {
+    async function fetchItem() {
+      setLoading(true);
+      setError(null);
       try {
-        const data = await getItemById(id);
+        const response = await fetch(`http://localhost:8000/item/${id}`);
+        if (!response.ok) throw new Error('Item não encontrado.');
+        const data = await response.json();
         setItem(data);
       } catch {
-        setError('Erro ao carregar item.');
+        setError('Erro ao carregar o item.');
       } finally {
         setLoading(false);
       }
-    })();
+    }
+    fetchItem();
   }, [id]);
 
-  if (loading) return <p>Carregando…</p>;
+  if (loading) return <p className="loading">Carregando...</p>;
   if (error) return <p className="error">{error}</p>;
+  if (!item) return null;
 
   return (
     <div className="item-detail container">
-      <h1>{item.name} (#{item.id})</h1>
-      <div className="detail-header">
-        <img src={item.image_url} alt={item.name} />
-        <div className="stats">
-          <p><strong>Descrição:</strong> {item.description}</p>
-          <p><strong>Preço NPC:</strong> {item.buy_price_npc} / {item.sell_price_npc}</p>
-          {item.weapon_level != null && <p><strong>Nível da Arma:</strong> {item.weapon_level}</p>}
-          {item.slots != null && <p><strong>Slots:</strong> {item.slots}</p>}
-          <p><strong>Equipável por:</strong> {item.equips_jobs.join(', ')}</p>
-          <p><strong>Classe:</strong> {item.equips_classes.join(', ')}</p>
-        </div>
-      </div>
-      <section className="sold-by">
-        <h2>Vendido por NPCs</h2>
-        {item.sold_by.length > 0 ? (
-          <ul>{item.sold_by.map((s,i) => (
-            <li key={i}>{s.npc_name} ({s.map}) – Preço: {s.price}</li>
-          ))}</ul>
-        ) : <p>Nenhum NPC vende este item.</p>}
-      </section>
-      <section className="drops">
-        <h2>Dropado por Monstros</h2>
-        {item.drops.length > 0 ? (
-          <ul>{item.drops.map((d,i) => (
-            <li key={i}>{d.monster_name} ({d.map}) – {d.drop_rate}%</li>
-          ))}</ul>
-        ) : <p>Não há informações de drop.</p>}
-      </section>
+      <h1>{item.name}</h1>
+
+      <img
+        src={`https://static.divine-pride.net/images/items/collection/${item.id}.png`}
+        alt={item.name}
+        className="item-image"
+        width={96}
+        height={96}
+      />
+
+      <p className="description">{item.description}</p>
+
+      <ul className="item-info">
+        <li>Tipo: {item.type || '-'}</li>
+        <li>Categoria: {item.subtype || '-'}</li>
+        <li>Força de Ataque: {item.attack || '-'}</li>
+        <li>Defesa: {item.defense || '-'}</li>
+        <li>Propriedade: {item.property || '-'}</li>
+        <li>Peso: {item.weight || '-'}</li>
+        <li>Slots: {item.slots || '-'}</li>
+        <li>Nível da arma: {item.weapon_level || '-'}</li>
+        <li>Nível necessário: {item.required_level || '-'}</li>
+        <li>Classes: {item.classes || '-'}</li>
+        <li>Preço NPC: {item.npc_price || '-'}</li>
+        <li>Adicionado em: {item.added_date || '-'}</li>
+      </ul>
+
+      <h2>Vendido por NPC</h2>
+      <ul className="sold-by">
+        {item.sold_by && item.sold_by.length > 0 ? (
+          item.sold_by.map((npc, index) => (
+            <li key={index}>
+              {npc.name || 'Unknown'} - {npc.map || '-'} - {npc.price || '-'} zeny
+            </li>
+          ))
+        ) : (
+          <li>Nenhum NPC encontrado.</li>
+        )}
+      </ul>
     </div>
-);
+  );
 }
