@@ -1,94 +1,103 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useLocation, Link } from "react-router-dom";
 import { api } from "../services/api";
-import {
-  BRANCHES,
-  iconUrl,
-} from "../utils/classIcons";
-import "../styles/ItemDetail.scss";
+import { BRANCHES, iconUrl, allowedIdSet } from "../utils/classIcons";
 
-/* ---------- mapa ID → ramo ---------- */
-const ID_TO_BRANCH = (() => {
-  const m = new Map();
-  BRANCHES.forEach((br) =>
-    br.stages.flat().forEach((id) => id !== undefined && m.set(id, br.key))
-  );
-  return m;
-})();
+import "../styles/ItemDetail.scss";
 
 export default function ItemDetail() {
   const { id } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const term = queryParams.get("term");
+
   const [item, setItem] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    if (!id) return;
-    setLoading(true);
-    api
-      .get(`/item/${id}`)
-      .then((r) => setItem(r.data))
-      .catch(() => setItem(null))
-      .finally(() => setLoading(false));
+    api.get(`/item/${id}`).then((res) => setItem(res.data));
   }, [id]);
 
-  if (loading) return <p className="loading">Carregando…</p>;
-  if (!item) return <p className="no-results">Item não encontrado.</p>;
+  if (!item) return <p className="loading">Carregando…</p>;
 
-  const allowedIds = new Set(item.allowed_classes ?? []);
+  const allowedIds = allowedIdSet(item);
 
   return (
-    <div className="item-detail-page">
-      <h1 className="item-title">
-        <img src={item.image_icon} alt="" className="item-icon" />
-        {item.name} <span className="item-id">#{item.id}</span>
-      </h1>
+    <div className="item-detail">
+      <div className="card">
+        <h1 className="title">
+          {item.image_icon && (
+            <img src={item.image_icon} alt={item.name} className="item-icon" />
+          )}
+          {item.name || `Item ${item.id}`}{" "}
+          <span className="item-id">#{item.id}</span>
+        </h1>
 
-      <div className="item-body">
-        <div className="item-info">
-          <p>{item.description}</p>
-          <ul className="item-stats">
-            <li>Peso: {item.weight}</li>
-            <li>Slots: {item.slots}</li>
-            <li>Ataque: {item.attack}</li>
-            <li>Defesa: {item.defense ?? "-"}</li>
-            <li>Nível Necessário: {item.requiredLevel ?? "-"}</li>
-            <li>Preço NPC: {item.price ?? "-"}</li>
-          </ul>
+        <div className="item-content">
+          <div className="item-image">
+            {item.image_collection && (
+              <img
+                src={item.image_collection}
+                alt=""
+                className="collection-img"
+              />
+            )}
+          </div>
+          <div className="item-info">
+            <p className="description">{item.description}</p>
+            <p className="details">
+              Peso: {item.weight || "?"} | Slots: {item.slots || "?"} | Ataque:{" "}
+              {item.attack || "?"}
+            </p>
+
+            <div className="actions">
+              <div className="quantity">
+                <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>-</button>
+                <span>{quantity}</span>
+                <button onClick={() => setQuantity((q) => q + 1)}>+</button>
+              </div>
+              <button className="btn">Adicionar ao Inventário</button>
+              <button className="btn">Adicionar à Lista</button>
+            </div>
+          </div>
         </div>
 
-        <table className="job-grid">
-          <tbody>
-            {BRANCHES[0].stages.map((_, rowIdx) => (
-              <tr key={rowIdx}>
-                {BRANCHES.map((br) => (
-                  <td key={br.key} className="job-cell">
-                    <div className="job-cell-icons">
-                      {br.stages[rowIdx].map((iconId) => {
-                        const enabled = allowedIds.has(iconId);
-                        return (
-                          <img
-                            key={iconId}
-                            src={iconUrl(iconId, enabled)}
-                            className={enabled ? "job-icon" : "job-icon disabled"}
-                            title={br.pt}
-                            alt=""
-                          />
-                        );
-                      })}
-                    </div>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="job-grid">
+          <h2>Classes que podem equipar:</h2>
+          <table>
+            <tbody>
+              {BRANCHES[0].stages.map((_, rowIdx) => (
+                <tr key={rowIdx}>
+                  {BRANCHES.map((br) => (
+                    <td key={br.key} className="job-cell">
+                      <div className="job-icons">
+                        {br.stages[rowIdx].map(({ id, name }) => {
+                          const enabled = allowedIds.has(id);
+                          return (
+                            <div key={id} className="job-icon-wrapper">
+                              <img
+                                src={iconUrl(id, enabled)}
+                                alt={name}
+                                title={name}
+                                className={`job-icon ${enabled ? "" : "disabled"}`}
+                              />
+                              <span className="job-label">{name}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        {item.image_collection && (
-          <img src={item.image_collection} alt="" className="collection-img" />
-        )}
+        <Link to={`/search?term=${term || ""}`} className="back-link">
+          ← Voltar
+        </Link>
       </div>
-
-      <Link to="/" className="back-link">← Voltar</Link>
     </div>
   );
 }

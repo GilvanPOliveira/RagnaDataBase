@@ -1,101 +1,182 @@
 .item-detail {
   padding: 2rem;
-  max-width: 960px;
+  max-width: 800px;
   margin: 0 auto;
-}
 
-.item-detail-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-
-  .item-icon {
-    width: 64px;
-    height: 64px;
-    image-rendering: pixelated;
+  .card {
+    padding: 2rem;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
-  .item-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-  }
-
-  .item-id {
-    color: #888;
-    font-size: 0.9rem;
-    margin-left: 0.5rem;
-  }
-}
-
-.item-detail-body {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-
-  .item-info {
-    flex: 1 1 300px;
-  }
-
-  .item-description {
-    background: #f8f8f8;
-    padding: 1rem;
-    border-radius: 6px;
-    line-height: 1.5;
-    white-space: pre-line;
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.8rem;
+    font-weight: bold;
     margin-bottom: 1rem;
+
+    .item-icon {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+    }
+
+    .item-id {
+      color: #888;
+      font-size: 1rem;
+    }
+  }
+
+  .item-content {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+
+    .item-info {
+      flex: 1;
+      min-width: 240px;
+
+      .description {
+        margin-bottom: 0.5rem;
+      }
+
+      .details {
+        color: #555;
+        font-size: 0.9rem;
+      }
+
+      .actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+
+        .quantity {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+          button {
+            padding: 0.2rem 0.6rem;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            cursor: pointer;
+          }
+        }
+
+        .btn {
+          padding: 0.3rem 1rem;
+          border: none;
+          background-color: #0077cc;
+          color: #fff;
+          cursor: pointer;
+          border-radius: 0.3rem;
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .item-image {
+      .collection-img {
+        width: 96px;
+        height: 96px;
+        image-rendering: pixelated;
+      }
+    }
   }
 
   .job-grid {
-    margin-top: 1rem;
-    width: 100%;
-    border-collapse: collapse;
+    margin-top: 2rem;
+    overflow-x: auto;
 
-    td {
-      padding: 0.3rem;
-      text-align: center;
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
     }
 
-    .job-cell-icons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 4px;
+    table {
+      width: 100%;
+      min-width: 600px;
+      border-collapse: collapse;
 
-      img {
-        width: 24px;
-        height: 24px;
-        image-rendering: pixelated;
-        &.disabled {
-          opacity: 0.3;
+      .job-cell {
+        text-align: center;
+        padding: 0.5rem;
+
+        .job-icons {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .job-icon-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.2rem;
+
+          .job-icon {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+
+            &.disabled {
+              opacity: 0.3;
+            }
+          }
+
+          .job-label {
+            font-size: 0.7rem;
+            color: #666;
+            white-space: nowrap;
+          }
         }
       }
     }
   }
 
-  .collection-img {
-    width: 200px;
-    height: auto;
-    object-fit: contain;
-    image-rendering: pixelated;
-    margin: 0 auto;
-    display: block;
-    border: 1px solid #ddd;
-    padding: 0.5rem;
-    background-color: #fff;
-    border-radius: 8px;
+  .back-link {
+    display: inline-block;
+    margin-top: 2rem;
+    color: #0077cc;
+    text-decoration: none;
+    font-size: 0.9rem;
   }
-}
 
-.back-link {
-  display: inline-block;
-  margin-top: 2rem;
-  color: #555;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.2s ease;
+  .loading {
+    text-align: center;
+    padding: 2rem;
+  }
 
-  &:hover {
-    color: #000;
+  @media (max-width: 768px) {
+    .title {
+      font-size: 1.2rem;
+
+      .item-icon {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .item-content {
+      gap: 1rem;
+      align-items: center;
+
+      .item-image .collection-img {
+        width: 72px;
+        height: 72px;
+      }
+    }
+
+    .job-grid table .job-icon {
+      width: 24px;
+      height: 24px;
+    }
   }
 }
