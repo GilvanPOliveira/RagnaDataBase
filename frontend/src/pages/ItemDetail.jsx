@@ -14,9 +14,16 @@ export default function ItemDetail() {
   const [item, setItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  useEffect(() => {
-    api.get(`/item/${id}`).then((res) => setItem(res.data));
-  }, [id]);
+useEffect(() => {
+  api.get(`/item/${id}`).then((res) => {
+    const data = res.data;
+    setItem({
+      ...data,
+      allowedClasses: data.allowed_classes,
+    });
+  });
+}, [id]);
+
 
   if (!item) return <p className="loading">Carregando…</p>;
 

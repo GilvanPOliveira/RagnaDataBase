@@ -31,7 +31,7 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
         data = r.json()
 
         allowed_raw = data.get("equipJobs")
-        allowed_classes = allowed_raw if allowed_raw else ALL_CLASSES_IDS
+        allowed_classes = allowed_raw or []
 
         # Converte string para int quando necessário
         allowed_classes_clean = [

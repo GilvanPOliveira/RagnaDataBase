@@ -112,21 +112,22 @@
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 0.25rem;
+          gap: 4px;
         }
 
         .job-icon-wrapper {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 0.2rem;
+          gap: 2px;
 
           .job-icon {
             width: 32px;
             height: 32px;
-            image-rendering: pixelated;
+            transition: 0.2s ease-in-out;
 
             &.disabled {
+              filter: grayscale(100%) brightness(0.5);
               opacity: 0.3;
             }
           }
@@ -179,63 +180,4 @@
       height: 24px;
     }
   }
-}
-.job-grid {
-  margin-top: 2rem;
-
-  h2 {
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .job-cell {
-    padding: 0.5rem;
-    vertical-align: top;
-    text-align: center;
-  }
-
-  .job-icons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .job-icon-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.7rem;
-    gap: 2px;
-  }
-
-  .job-icon {
-    width: 32px;
-    height: 32px;
-    transition: 0.2s ease-in-out;
-  }
-
-  .job-icon.disabled {
-    filter: grayscale(100%) brightness(0.7);
-    opacity: 0.5;
-  }
-
-  .job-label {
-    font-size: 0.7rem;
-    text-align: center;
-    white-space: nowrap;
-    max-width: 4rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-.job-icon.disabled {
-    filter: grayscale(100%) brightness(0.5);
-    opacity: 0.3;
-    transition: 0.2s ease-in-out;
 }
