@@ -5,23 +5,16 @@ from models.item_model import (
     ItemSummonInfo, ContainedInEntry
 )
 from utils.env_loader import get_env_var
+from services.dp_classes import extract_allowed_classes
 
 API_KEY = get_env_var("DIVINE_PRIDE_API_KEY")
-IMG_JOBS = "https://static.divine-pride.net/images/jobs/icon_jobs_"
 
-ALL_CLASSES_IDS = [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20,
-    21, 23, 24, 25, 4002, 4003, 4004, 4005, 4006, 4007, 4008, 4009, 4010, 4011,
-    4012, 4013, 4015, 4016, 4017, 4018, 4019, 4020, 4021, 4054, 4055, 4056, 4057,
-    4058, 4059, 4066, 4067, 4068, 4069, 4070, 4071, 4072, 4190, 4211, 4212, 4215,
-    4218, 4239, 4240, 4252, 4253, 4254, 4255, 4256, 4257, 4258, 4259, 4260, 4261,
-    4262, 4263, 4264, 4302, 4303, 4304, 4305, 4306, 4307, 4308
-]
 
 def strip_colors(text: str) -> str:
     if not text:
         return None
     return re.sub(r"\^(?:[0-9a-fA-F]{6})", "", text).replace("\n", " ").strip()
+
 
 async def fetch_dp_json(item_id: int) -> ItemModel:
     url = f"https://www.divine-pride.net/api/database/Item/{item_id}?apiKey={API_KEY}&server=bRO"
@@ -31,16 +24,7 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
         data = r.json()
 
         allowed_raw = data.get("equipJobs")
-        allowed_classes = allowed_raw or []
-
-        # Converte string para int quando necessário
-        allowed_classes_clean = [
-            int(cls_id) if isinstance(cls_id, str) and cls_id.isdigit() else cls_id
-            for cls_id in allowed_classes
-            if isinstance(cls_id, (int, str))
-        ]
-
-        class_icons = [f"{IMG_JOBS}{cls_id}.png" for cls_id in allowed_classes_clean]
+        classes_info = extract_allowed_classes(allowed_raw)
 
         return ItemModel(
             id=data["id"],
@@ -116,6 +100,6 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
                 f"https://kafra.kr/#!/en/KRO/itemdetail/{item_id}"
             ],
             weapon_level=data.get("weaponLevel"),
-            allowed_classes=allowed_classes_clean,
-            class_icons=class_icons
+            allowed_classes=classes_info["allowed_classes"],
+            class_icons=classes_info["class_icons"]
         )
