@@ -5,26 +5,26 @@ from models.item_model import (
     ItemSummonInfo, ContainedInEntry
 )
 from utils.env_loader import get_env_var
-from services.dp_classes import extract_allowed_classes
+from services.dp_classes import extract_allowed_classes, parse_jobs_from_description
 
 API_KEY = get_env_var("DIVINE_PRIDE_API_KEY")
-
 
 def strip_colors(text: str) -> str:
     if not text:
         return None
     return re.sub(r"\^(?:[0-9a-fA-F]{6})", "", text).replace("\n", " ").strip()
 
-
 async def fetch_dp_json(item_id: int) -> ItemModel:
-    url = f"https://www.divine-pride.net/api/database/Item/{item_id}?apiKey={API_KEY}&server=bRO"
+    url = f"https://www.divine-pride.net/api/database/item/{item_id}?apiKey={API_KEY}"
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
         r.raise_for_status()
         data = r.json()
 
-        allowed_raw = data.get("equipJobs")
-        classes_info = extract_allowed_classes(allowed_raw)
+        # Não existe campo de jobs direto; extrai da descrição!
+        description = data.get("description") or ""
+        jobs_from_description = parse_jobs_from_description(description)
+        classes_info = extract_allowed_classes(jobs_from_description)
 
         return ItemModel(
             id=data["id"],
@@ -33,7 +33,7 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
             resName=data.get("resName"),
             unidName=data.get("unidName"),
             unidResName=data.get("unidResName"),
-            description=strip_colors(data.get("description")),
+            description=strip_colors(description),
             unidDescription=strip_colors(data.get("unidDescription")),
             image_icon=f"https://static.divine-pride.net/images/items/item/{item_id}.png",
             image_collection=f"https://static.divine-pride.net/images/items/collection/{item_id}.png",
@@ -80,7 +80,8 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
                 ItemSet(
                     name=s["name"],
                     items=[
-                        ItemSetEntry(itemId=i["itemId"], name=i["name"]) for i in s.get("items", [])
+                        ItemSetEntry(itemId=i["itemId"], name=i["name"])
+                        for i in s.get("items", [])
                     ]
                 )
                 for s in data.get("sets", [])
@@ -100,6 +101,6 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
                 f"https://kafra.kr/#!/en/KRO/itemdetail/{item_id}"
             ],
             weapon_level=data.get("weaponLevel"),
-            allowed_classes=classes_info["allowed_classes"],
+            equipJobs=classes_info["allowed_classes"],
             class_icons=classes_info["class_icons"]
         )
