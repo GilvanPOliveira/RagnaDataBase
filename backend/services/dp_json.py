@@ -30,11 +30,17 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
         r.raise_for_status()
         data = r.json()
 
-        allowed = data.get("equipJobs")
+        allowed_raw = data.get("equipJobs")
+        allowed_classes = allowed_raw if allowed_raw else ALL_CLASSES_IDS
 
-        # Se não houver allowed_classes da API, retorna todas as 82
-        allowed_classes = allowed or ALL_CLASSES_IDS
-        class_icons = [f"{IMG_JOBS}{cls_id}.png" for cls_id in allowed_classes]
+        # Converte string para int quando necessário
+        allowed_classes_clean = [
+            int(cls_id) if isinstance(cls_id, str) and cls_id.isdigit() else cls_id
+            for cls_id in allowed_classes
+            if isinstance(cls_id, (int, str))
+        ]
+
+        class_icons = [f"{IMG_JOBS}{cls_id}.png" for cls_id in allowed_classes_clean]
 
         return ItemModel(
             id=data["id"],
@@ -110,6 +116,6 @@ async def fetch_dp_json(item_id: int) -> ItemModel:
                 f"https://kafra.kr/#!/en/KRO/itemdetail/{item_id}"
             ],
             weapon_level=data.get("weaponLevel"),
-            allowed_classes=allowed_classes,
+            allowed_classes=allowed_classes_clean,
             class_icons=class_icons
         )
