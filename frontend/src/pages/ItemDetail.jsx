@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
 import { api } from "../services/api";
-import { BRANCHES, iconUrl, allowedIdSet } from "../utils/classIcons";
-
 import "../styles/ItemDetail.scss";
 
 export default function ItemDetail() {
@@ -14,20 +12,17 @@ export default function ItemDetail() {
   const [item, setItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-useEffect(() => {
-  api.get(`/item/${id}`).then((res) => {
-    const data = res.data;
-    setItem({
-      ...data,
-      allowedClasses: data.allowed_classes,
+  useEffect(() => {
+    api.get(`/item/${id}`).then((res) => {
+      const data = res.data;
+      setItem({
+        ...data,
+        allowedClasses: data.allowed_classes,
+      });
     });
-  });
-}, [id]);
-
+  }, [id]);
 
   if (!item) return <p className="loading">Carregando…</p>;
-
-  const allowedIds = allowedIdSet(item);
 
   return (
     <div className="item-detail">
@@ -67,38 +62,6 @@ useEffect(() => {
               <button className="btn">Adicionar à Lista</button>
             </div>
           </div>
-        </div>
-
-        <div className="job-grid">
-          <h2>Classes que podem equipar:</h2>
-          <table>
-            <tbody>
-              {BRANCHES[0].stages.map((_, rowIdx) => (
-                <tr key={rowIdx}>
-                  {BRANCHES.map((br) => (
-                    <td key={br.key} className="job-cell">
-                      <div className="job-icons">
-                        {br.stages[rowIdx].map(({ id, name }) => {
-                          const enabled = allowedIds.has(id);
-                          return (
-                            <div key={id} className="job-icon-wrapper">
-                              <img
-                                src={iconUrl(id, enabled)}
-                                alt={name}
-                                title={name}
-                                className={`job-icon ${enabled ? "" : "disabled"}`}
-                              />
-                              <span className="job-label">{name}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
 
         <Link to={`/search?term=${term || ""}`} className="back-link">
